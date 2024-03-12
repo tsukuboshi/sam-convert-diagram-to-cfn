@@ -1,0 +1,156 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: Convert AWS Diagrams to CloudFormation Templates
+
+Parameters:
+  BedrockRegion:
+    Type: String
+    Default: us-west-2
+  BedrockModelId:
+    Type: String
+    Default: anthropic.claude-3-sonnet-20240229-v1:0
+  PromptPath:
+    Type: String
+    Default: prompt.txt
+
+Resources:
+  InputDiagramBucket:
+    Type: 'AWS::S3::Bucket'
+    Properties:
+      BucketName: !Sub '${AWS::StackName}-input-diagram-bucket-${AWS::AccountId}'
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: AES256
+            BucketKeyEnabled: true
+      OwnershipControls:
+        Rules:
+          - ObjectOwnership: BucketOwnerEnforced
+      NotificationConfiguration:
+        LambdaConfigurations:
+        - Function: !GetAtt ConvertFunction.Arn
+          Event: s3:ObjectCreated:*
+
+  OutputTemplateBucket:
+    Type: 'AWS::S3::Bucket'
+    Properties:
+      BucketName: !Sub '${AWS::StackName}-output-template-bucket-${AWS::AccountId}'
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: AES256
+            BucketKeyEnabled: true
+      OwnershipControls:
+        Rules:
+          - ObjectOwnership: BucketOwnerEnforced
+
+  ConvertFunctionRole:
+    Type: 'AWS::IAM::Role'
+    Properties:
+      RoleName: !Sub '${AWS::StackName}-role-convert-function'
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Sid: ''
+            Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: 'sts:AssumeRole'
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+
+  ConvertFunctionPolicy:
+    Type: 'AWS::IAM::ManagedPolicy'
+    Properties:
+      ManagedPolicyName: !Sub '${AWS::StackName}-policy-convert-function'
+      Roles:
+        - !Ref ConvertFunctionRole
+      PolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Resource: !Sub
+              - 'arn:aws:bedrock:${BedrockRegion}::foundation-model/anthropic.claude-*'
+              - BedrockRegion: !Ref BedrockRegion
+            Action: bedrock:InvokeModel
+          - Effect: Allow
+            Resource:
+              - !GetAtt InputDiagramBucket.Arn
+              - !GetAtt OutputTemplateBucket.Arn
+            Action: s3:ListBucket
+          - Effect: Allow
+            Resource: '*'
+            Action: cloudformation:ValidateTemplate
+          - Effect: Allow
+            Resource: !Sub
+              - '${InputDiagramBucketArn}/*'
+              -  InputDiagramBucketArn: !GetAtt InputDiagramBucket.Arn
+            Action: s3:GetObject
+          - Effect: Allow
+            Resource: !Sub
+              - '${OutputTemplateBucketArn}/*'
+              -  OutputTemplateBucketArn: !GetAtt OutputTemplateBucket.Arn
+            Action: s3:PutObject
+
+  ConvertFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: function/
+      FunctionName: !Sub '${AWS::StackName}-function'
+      Handler: index.lambda_handler
+      Role: !GetAtt ConvertFunctionRole.Arn
+      MemorySize: 512
+      EphemeralStorage:
+        Size: 512
+      Runtime: python3.11
+      EventInvokeConfig:
+        MaximumRetryAttempts: 0
+      Timeout: 900
+      Layers:
+        - !Ref ConverFunctionLayer
+      LoggingConfig:
+        LogFormat: JSON
+        ApplicationLogLevel: INFO
+      Environment:
+        Variables:
+          BEDROCK_REGION: !Ref BedrockRegion
+          MODEL_ID: !Ref BedrockModelId
+          OUTPUT_BUCKET: !Ref OutputTemplateBucket
+          PROMPT_PATH: !Ref PromptPath
+
+  ConvertFunctionPermission:
+    Type: 'AWS::Lambda::Permission'
+    Properties:
+      FunctionName: !Ref ConvertFunction
+      Action: lambda:InvokeFunction
+      Principal: s3.amazonaws.com
+      SourceArn: !Sub "arn:aws:s3:::${AWS::StackName}-input-diagram-bucket-${AWS::AccountId}"
+
+  ConverFunctionLayer:
+    Type: AWS::Serverless::LayerVersion
+    Properties:
+      LayerName: !Sub '${AWS::StackName}-layer'
+      ContentUri: layer/
+      CompatibleRuntimes:
+        - python3.11
+    Metadata:
+      BuildMethod: python3.11
+
+
+Outputs:
+  InputImageBucketName:
+    Value: !Ref InputDiagramBucket
+  FunctionName:
+    Value: !Ref ConvertFunction
+  OutputTemplateBucketName:
+    Value: !Ref OutputTemplateBucket
