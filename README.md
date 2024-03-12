@@ -15,20 +15,22 @@ AWS構成図を受け取り、CloudFormationテンプレートを生成するサ
 
 ## デプロイ方法
 
-1. 以下コマンドで、リポジトリをクローン
+1. 事前にLambdaで使用するリージョンのBedrock Claude 3を、([モデルアクセス \- Amazon Bedrock](https://docs.aws.amazon.com/ja_jp/bedrock/latest/userguide/model-access.html#model-access-add))を参考に有効化
+
+2. 以下コマンドで、リポジトリをクローン
 
 ```bash
 git clone https://github.com/tsukuboshi/sam-convert-diagram-to-cfn.git
 cd sam-convert-diagram-to-cfn
 ```
 
-2. 以下コマンドで、SAMアプリをビルド
+3. 以下コマンドで、SAMアプリをビルド
 
 ``` bash
 sam build
 ```
 
-3. 以下コマンドで、SAMアプリをデプロイ
+4. 以下コマンドで、SAMアプリをデプロイ
 
 ``` bash
 sam deploy
