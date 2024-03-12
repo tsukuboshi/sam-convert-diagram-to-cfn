@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "sam-convert-awsdiagram-to-cfn"
+name = "sam-convert-diagram-to-cfn"
 version = "0.1.0"
 description = ""
 authors = ["Your Name <you@example.com>"]
