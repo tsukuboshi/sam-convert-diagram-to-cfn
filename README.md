@@ -24,13 +24,22 @@ git clone https://github.com/tsukuboshi/sam-convert-diagram-to-cfn.git
 cd sam-convert-diagram-to-cfn
 ```
 
-3. 以下コマンドで、SAMアプリをビルド
+3. 補足プロンプトをしようしたい場合は、`prompt.txt`に対して補足情報を記載
+
+- S3 + CloudFront構成での補足プロンプト例
+
+```txt
+- バケット名にはデプロイするアカウントのIDを含めてください。
+- CloudFrontのViewerCertificateは指定しないでください。
+```
+
+4. 以下コマンドで、SAMアプリをビルド
 
 ``` bash
 sam build
 ```
 
-4. 以下コマンドで、SAMアプリをデプロイ
+5. 以下コマンドで、SAMアプリをデプロイ
 
 ``` bash
 sam deploy
