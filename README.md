@@ -26,11 +26,22 @@ cd sam-convert-diagram-to-cfn
 
 3. 補足プロンプトを使用したい場合は、`prompt.txt`に対して補足情報を記載
 
+- ALB + EC2 + RDS構成での補足プロンプト例
+
+```txt
+- `AWS::ElasticLoadBalancingV2::TargetGroupAttachment`リソースは使用しないでください
+- EC2のAMI IDには`ami-039e8f15ccb15368a`を使用してください
+- EC2のキーペアは使用せず、SSM Session Managerでアクセスできるようにしてください
+- ALBのセキュリティグループは、HTTP及びHTTPSのみ受け付けるようにしてください
+- EC2のセキュリティグループは、ALBのセキュリティグループからのHTTP及びHTTPSのみ許可するようにしてください
+- RDSのセキュリティグループは、EC2のセキュリティグループからのMySQLのみ許可するようにしてください
+```
+
 - S3 + CloudFront構成での補足プロンプト例
 
 ```txt
-・バケット名にはデプロイするアカウントのIDを含めてください。
-・CloudFrontのViewerCertificateは指定しないでください。
+- バケット名にはデプロイするアカウントのIDを含めてください。
+- CloudFrontのViewerCertificateは指定しないでください。
 ```
 
 4. 以下コマンドで、SAMアプリをビルド
