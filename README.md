@@ -29,8 +29,8 @@ cd sam-convert-diagram-to-cfn
 - S3 + CloudFront構成での補足プロンプト例
 
 ```txt
-- バケット名にはデプロイするアカウントのIDを含めてください。
-- CloudFrontのViewerCertificateは指定しないでください。
+・バケット名にはデプロイするアカウントのIDを含めてください。
+・CloudFrontのViewerCertificateは指定しないでください。
 ```
 
 4. 以下コマンドで、SAMアプリをビルド
