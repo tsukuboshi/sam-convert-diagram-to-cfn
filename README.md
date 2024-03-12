@@ -24,7 +24,7 @@ git clone https://github.com/tsukuboshi/sam-convert-diagram-to-cfn.git
 cd sam-convert-diagram-to-cfn
 ```
 
-3. 補足プロンプトをしようしたい場合は、`prompt.txt`に対して補足情報を記載
+3. 補足プロンプトを使用したい場合は、`prompt.txt`に対して補足情報を記載
 
 - S3 + CloudFront構成での補足プロンプト例
 
