@@ -15,7 +15,7 @@ AWS構成図を受け取り、CloudFormationテンプレートを生成するサ
 
 ## デプロイ方法
 
-1. 事前にLambdaで使用するリージョンのBedrock Claude 3を、([モデルアクセス \- Amazon Bedrock](https://docs.aws.amazon.com/ja_jp/bedrock/latest/userguide/model-access.html#model-access-add))を参考に有効化
+1. 事前にLambdaで使用するリージョンのBedrock Claude 3を、[モデルアクセス \- Amazon Bedrock](https://docs.aws.amazon.com/ja_jp/bedrock/latest/userguide/model-access.html#model-access-add)を参考に有効化
 
 2. 以下コマンドで、リポジトリをクローン
 
