@@ -18,7 +18,7 @@ AWS構成図を受け取り、CloudFormationテンプレートを生成するサ
 1. 以下コマンドで、リポジトリをクローン
 
 ```bash
-git clone 
+git clone https://github.com/tsukuboshi/sam-convert-diagram-to-cfn.git
 cd sam-convert-diagram-to-cfn
 ```
 
