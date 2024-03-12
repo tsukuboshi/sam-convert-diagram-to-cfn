@@ -17,14 +17,15 @@ bedrock_runtime = boto3.client(
 cfn = boto3.client("cloudformation")
 
 
+# ハンドラー関数
 def lambda_handler(event: Dict[Any, Any], context: Any) -> Dict[str, Any]:
     input_bucket_name = event["Records"][0]["s3"]["bucket"]["name"]
-    input_diagram = event["Records"][0]["s3"]["object"]["key"]
+    input_diagram_name = event["Records"][0]["s3"]["object"]["key"]
 
     current_time = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
 
     tmp_image_path = f"/tmp/{current_time}.png"
-    file_download(input_bucket_name, input_diagram, tmp_image_path)
+    file_download(input_bucket_name, input_diagram_name, tmp_image_path)
 
     row_content = request_claude(tmp_image_path)
     yaml_content = row_content.strip("`").replace("yaml\n", "").strip()
@@ -40,14 +41,17 @@ def lambda_handler(event: Dict[Any, Any], context: Any) -> Dict[str, Any]:
     return {"statusCode": 200}
 
 
+# 構成図ダウンロード関数
 def file_download(bucket_name: str, file_name: str, tmp_file_path: str) -> None:
     try:
         s3.download_file(bucket_name, file_name, tmp_file_path)
+        logger.info("Downloaded file: %s", file_name)
     except botocore.exceptions.ClientError as e:
         logger.error("Bucket Download Error: %s", e)
         raise e
 
 
+# Claudeへのメッセージリクエスト関数
 def request_claude(tmp_image_path: str) -> Any:
     model_id = os.environ["MODEL_ID"]
     prompt_path = os.environ["PROMPT_PATH"]
@@ -120,6 +124,7 @@ def request_claude(tmp_image_path: str) -> Any:
         raise e
 
 
+# CloudFormationバリデーション関数
 def cfn_validate(yaml_content: str, current_time: str) -> str:
     try:
         cfn_res = cfn.validate_template(
@@ -134,6 +139,7 @@ def cfn_validate(yaml_content: str, current_time: str) -> str:
         return file_name
 
 
+# テンプレートアップロード関数
 def file_upload(file_name: str, tmp_yaml: str) -> None:
     output_s3_bucket = os.environ["OUTPUT_BUCKET"]
     try:
