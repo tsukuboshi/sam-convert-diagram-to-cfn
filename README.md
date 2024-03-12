@@ -29,7 +29,7 @@ cd sam-convert-diagram-to-cfn
 - ALB + EC2 + RDS構成での補足プロンプト例
 
 ```txt
-- `AWS::ElasticLoadBalancingV2::TargetGroupAttachment`リソースは使用しないでください
+- VPC及びサブネット含めて新規で作成してください
 - EC2のAMI IDには`ami-039e8f15ccb15368a`を使用してください
 - EC2のキーペアは使用せず、SSM Session Managerでアクセスできるようにしてください
 - ALBのセキュリティグループは、HTTP及びHTTPSのみ受け付けるようにしてください
