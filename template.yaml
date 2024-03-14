@@ -9,6 +9,7 @@ Parameters:
   BedrockModelId:
     Type: String
     Default: anthropic.claude-3-sonnet-20240229-v1:0
+    AllowedPattern: '^anthropic\.claude-.*'
   PromptPath:
     Type: String
     Default: prompt.txt
@@ -79,9 +80,7 @@ Resources:
         Version: 2012-10-17
         Statement:
           - Effect: Allow
-            Resource: !Sub
-              - 'arn:aws:bedrock:${BedrockRegion}::foundation-model/anthropic.claude-*'
-              - BedrockRegion: !Ref BedrockRegion
+            Resource: !Sub 'arn:aws:bedrock:${BedrockRegion}::foundation-model/${BedrockModelId}'
             Action: bedrock:InvokeModel
           - Effect: Allow
             Resource:
