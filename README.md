@@ -63,3 +63,7 @@ sam deploy
 |BedrockRegion|String|Bedrockを呼び出すリージョン|us-west-2|
 |BedrockModelId|String|BedrockのモデルID|anthropic.claude-3-sonnet-20240229-v1:0|
 |PromptPath|String|補足用プロンプトテキストのパス|prompt.txt|
+
+## 参考文献
+
+- [S3にアップロードしたAWS構成図をCloudFormationに変換するシステムを作ってみた \| DevelopersIO](https://dev.classmethod.jp/articles/bedrock-claude-convert-diagram-to-cfn/)
